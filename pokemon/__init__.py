@@ -1,6 +1,6 @@
 from .pokemon import Pokemon
 
 
-def setup(bot):
+async def setup(bot):
     n = Pokemon()
-    bot.add_cog(n)
+    await bot.add_cog(n)

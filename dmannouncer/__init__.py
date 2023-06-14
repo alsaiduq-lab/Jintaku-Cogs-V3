@@ -1,6 +1,6 @@
 from .dmannouncer import Dmannouncer
 
 
-def setup(bot):
+async def setup(bot):
     n = Dmannouncer()
-    bot.add_cog(n)
+    await bot.add_cog(n)

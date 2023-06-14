@@ -1,6 +1,6 @@
 from .booru import Booru
 
 
-def setup(bot):
+async def setup(bot):
     n = Booru()
-    bot.add_cog(n)
+    await bot.add_cog(n)
