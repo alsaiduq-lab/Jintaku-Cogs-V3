@@ -878,6 +878,8 @@ class BooruCore:
         else:
             assigned_content = []
             for item in content:
+                if type(item) is str:
+                    continue
                 if item.get("id") is None:
                     continue
                 if provider == "Konachan":
