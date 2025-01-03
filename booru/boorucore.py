@@ -261,6 +261,13 @@ class BooruCore:
                 item = {}
         return nekos_content
 
+
+    async def format_tags(self, tags):
+    """Convert user-friendly tag format to booru format"""
+    if not tags:
+        return ''
+    return ' '.join(tags.split(', '))
+
     @cached(ttl=600, cache=SimpleMemoryCache, key="nekos_nsfw_classic")
     async def fetch_nekos_nsfw_classic(self, ctx, tag):  # Nekos nsfw classic fetcher
         life = boorusources.nekos_nsfw_classic
@@ -885,8 +892,10 @@ class BooruCore:
                 if provider == "Konachan":
                     item["post_link"] = "https://konachan.com/post/show/" + str(item["id"])
                 elif provider == "Gelbooru":
-                    item["post_link"] = "https://gelbooru.com/index.php?page=post&s=view&id=" + str(item["id"])
-                    item["author"] = item["owner"]
+                    item["post_link"] = f"https://gelbooru.com/index.php?page=post&s=view&id={item['id']}"
+                    if "file_url" not in item and "media_asset" in item:
+                        item["file_url"] = item["media_asset"]["url"]
+                    item["author"] = item.get("owner") or item.get("creator") or "Unknown"
                 elif provider == "Rule34":
                     item["post_link"] = "https://rule34.xxx/index.php?page=post&s=view&id=" + str(item["id"])
                     item["file_url"] = "https://us.rule34.xxx//images/" + item["directory"] + "/" + item["image"]
@@ -919,12 +928,26 @@ class BooruCore:
 
     @cached(ttl=3600, cache=SimpleMemoryCache)
     async def fetch_gel(self, ctx, tags):  # Gelbooru fetcher
-        urlstr = boorusources.gel + "+".join(tags)
-        log.debug(urlstr)
-        return await self.fetch_from_booru(urlstr, "Gelbooru")
+        formatted_tags = await self.format_tags(tags)
+        base_url = "https://gelbooru.com/index.php"
+        params = {
+        'page': 'dapi',
+        's': 'post',
+        'q': 'index',
+        'json': '1',
+        'limit': '100',
+        'tags': formatted_tags
+        }
+    
+        # Add credentials if they exist, although new api pretty much demands you need an api key...
+        credentials = await self.bot.get_shared_api_tokens("gelbooru")
+        if credentials.get("api_key") and credentials.get("user_id"):
+            params['api_key'] = credentials['api_key']
+            params['user_id'] = credentials['user_id']
 
-    @cached(ttl=3600, cache=SimpleMemoryCache)
-    async def fetch_safe(self, ctx, tags):  # Safebooru fetcher
+    urlstr = f"{base_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
+    log.debug(urlstr)
+    return await self.fetch_from_booru(urlstr, "Gelbooru")
         urlstr = boorusources.safe + "+".join(tags)
         log.debug(urlstr)
         return await self.fetch_from_booru(urlstr, "Safebooru")
