@@ -263,10 +263,10 @@ class BooruCore:
 
 
     async def format_tags(self, tags):
-    """Convert user-friendly tag format to booru format"""
-    if not tags:
-        return ''
-    return ' '.join(tags.split(', '))
+        """Convert user-friendly tag format to booru format"""
+        if not tags:
+            return ''
+        return ' '.join(tags.split(', '))
 
     @cached(ttl=600, cache=SimpleMemoryCache, key="nekos_nsfw_classic")
     async def fetch_nekos_nsfw_classic(self, ctx, tag):  # Nekos nsfw classic fetcher
