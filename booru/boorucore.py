@@ -931,12 +931,12 @@ class BooruCore:
         formatted_tags = await self.format_tags(tags)
         base_url = "https://gelbooru.com/index.php"
         params = {
-        'page': 'dapi',
-        's': 'post',
-        'q': 'index',
-        'json': '1',
-        'limit': '100',
-        'tags': formatted_tags
+            'page': 'dapi',
+            's': 'post',
+            'q': 'index',
+            'json': '1',
+            'limit': '100',
+            'tags': formatted_tags
         }
     
         # Add credentials if they exist, although new api pretty much demands you need an api key...
@@ -945,12 +945,9 @@ class BooruCore:
             params['api_key'] = credentials['api_key']
             params['user_id'] = credentials['user_id']
 
-    urlstr = f"{base_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
-    log.debug(urlstr)
-    return await self.fetch_from_booru(urlstr, "Gelbooru")
-        urlstr = boorusources.safe + "+".join(tags)
+        urlstr = f"{base_url}?{'&'.join(f'{k}={v}' for k, v in params.items())}"
         log.debug(urlstr)
-        return await self.fetch_from_booru(urlstr, "Safebooru")
+        return await self.fetch_from_booru(urlstr, "Gelbooru")
 
     @cached(ttl=3600, cache=SimpleMemoryCache)
     async def fetch_kon(self, ctx, tags):  # Konachan fetcher
