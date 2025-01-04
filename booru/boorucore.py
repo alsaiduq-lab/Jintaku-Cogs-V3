@@ -3,6 +3,7 @@ from redbot.core import Config, checks, commands
 from redbot.core.utils.menus import menu, commands, DEFAULT_CONTROLS
 import aiohttp
 import contextlib
+import random
 from random import randint
 import asyncio
 import logging
