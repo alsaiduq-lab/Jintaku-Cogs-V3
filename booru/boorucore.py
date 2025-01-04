@@ -937,7 +937,7 @@ class BooruCore:
                 and content["success"] is False
             )
         ):
-            return []
+        return []
 
         assigned_content = []
 
@@ -955,7 +955,9 @@ class BooruCore:
                     item["post_link"] = "https://konachan.com/post/show/" + str(item["id"])
 
                 elif provider == "Gelbooru":
-                    item["post_link"] = f"https://gelbooru.com/index.php?page=post&s=view&id={item['id']}"
+                    item["post_link"] = (
+                        f"https://gelbooru.com/index.php?page=post&s=view&id={item['id']}"
+                    )
                     if "file_url" not in item and "media_asset" in item:
                         item["file_url"] = item["media_asset"]["url"]
                     item["author"] = item.get("owner") or item.get("creator") or "Unknown"
@@ -965,15 +967,15 @@ class BooruCore:
                         "https://rule34.xxx/index.php?page=post&s=view&id=" + str(item["id"])
                     )
                     item["file_url"] = (
-                        "https://us.rule34.xxx//images/"
-                        + item["directory"]
-                        + "/"
-                            + item["image"]
+                    "https://us.rule34.xxx//images/"
+                    + item["directory"]
+                    + "/"
+                    + item["image"]
                 )
                     item["author"] = item["owner"]
 
-                    elif provider == "Yandere":
-                item["post_link"] = "https://yande.re/post/show/" + str(item["id"])
+                elif provider == "Yandere":
+                    item["post_link"] = "https://yande.re/post/show/" + str(item["id"])
 
                 elif provider == "Danbooru":
                     item["post_link"] = "https://danbooru.donmai.us/posts/" + str(item["id"])
@@ -982,14 +984,15 @@ class BooruCore:
 
                 elif provider == "Safebooru":
                     item["post_link"] = (
-                        "https://safebooru.com/index.php?page=post&s=view&id=" + str(item["id"])
-                    )
+                        "https://safebooru.com/index.php?page=post&s=view&id="
+                        + str(item["id"])
+                )
                     item["file_url"] = (
                         "https://safebooru.org//images/"
-                        + item["directory"]
-                        + "/"
-                        + item["image"]
-                    )
+                    + item["directory"]
+                    + "/"
+                    + item["image"]
+                )
                     item["author"] = item["owner"]
 
                 elif provider == "e621":

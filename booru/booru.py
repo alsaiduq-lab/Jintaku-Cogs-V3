@@ -1,5 +1,5 @@
 import discord
-from redbot.core import Config, checks, commands
+from redbot.core import Config, checks
 from redbot.core.utils.menus import menu, commands, DEFAULT_CONTROLS
 import aiohttp
 import contextlib
