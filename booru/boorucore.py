@@ -902,117 +902,67 @@ class BooruCore:
         user_agent = random.choice(COMMON_USER_AGENTS)  # Choose a random User-Agent
 
         try:
-            # Use the randomly chosen User-Agent in the request headers
-            async with self.session.get(
-                urlstr,
-                ssl=False,
-                headers={"User-Agent": user_agent}
-            ) as resp:
+            async with self.session.get(urlstr, ssl=False, headers={"User-Agent": user_agent}) as resp:
                 try:
                     content = await resp.json(content_type=None)
-
-                    # e621 returns post data under 'posts'
                     if provider == "e621":
                         content = content["posts"]
                         log.debug(content)
-
                 except (ValueError, aiohttp.ContentTypeError) as ex:
-                    # JSON parsing error or invalid content
                     log.debug(f"JSON parsing error for {provider}: {ex}")
                     content = []
-
         except Exception as e:
-            # Connection or HTTP request error
             log.debug(f"Connection error for {provider}: {e}")
             content = []
 
-        # Return an empty list if content is missing or indicates a failed response
-        if (
-            not content
-            or content == []
-            or content is None
-            or (
-                isinstance(content, dict)
-                and "success" in content
-                and content["success"] is False
-            )
-        ):
-        return []
+        if (not content or content == [] or content is None or 
+            (isinstance(content, dict) and "success" in content and content["success"] is False)):
+            return []
 
         assigned_content = []
-
-        # Process each item in the response
         try:
             for item in content:
-                # Skip if item is a string or lacks an ID
                 if isinstance(item, str):
                     continue
                 if item.get("id") is None:
                     continue
 
-                # Populate fields based on provider
                 if provider == "Konachan":
                     item["post_link"] = "https://konachan.com/post/show/" + str(item["id"])
-
                 elif provider == "Gelbooru":
-                    item["post_link"] = (
-                        f"https://gelbooru.com/index.php?page=post&s=view&id={item['id']}"
-                    )
+                    item["post_link"] = f"https://gelbooru.com/index.php?page=post&s=view&id={item['id']}"
                     if "file_url" not in item and "media_asset" in item:
                         item["file_url"] = item["media_asset"]["url"]
                     item["author"] = item.get("owner") or item.get("creator") or "Unknown"
-
                 elif provider == "Rule34":
-                    item["post_link"] = (
-                        "https://rule34.xxx/index.php?page=post&s=view&id=" + str(item["id"])
-                    )
-                    item["file_url"] = (
-                    "https://us.rule34.xxx//images/"
-                    + item["directory"]
-                    + "/"
-                    + item["image"]
-                )
+                    item["post_link"] = "https://rule34.xxx/index.php?page=post&s=view&id=" + str(item["id"])
+                    item["file_url"] = "https://us.rule34.xxx//images/" + item["directory"] + "/" + item["image"]
                     item["author"] = item["owner"]
-
                 elif provider == "Yandere":
                     item["post_link"] = "https://yande.re/post/show/" + str(item["id"])
-
                 elif provider == "Danbooru":
                     item["post_link"] = "https://danbooru.donmai.us/posts/" + str(item["id"])
                     item["tags"] = item["tag_string"]
                     item["author"] = "Not Available"
-
                 elif provider == "Safebooru":
-                    item["post_link"] = (
-                        "https://safebooru.com/index.php?page=post&s=view&id="
-                        + str(item["id"])
-                )
-                    item["file_url"] = (
-                        "https://safebooru.org//images/"
-                    + item["directory"]
-                    + "/"
-                    + item["image"]
-                )
+                    item["post_link"] = "https://safebooru.com/index.php?page=post&s=view&id=" + str(item["id"])
+                    item["file_url"] = "https://safebooru.org//images/" + item["directory"] + "/" + item["image"]
                     item["author"] = item["owner"]
-
                 elif provider == "e621":
                     item["post_link"] = "https://e621.net/post/show/" + str(item["id"])
                     item["file_url"] = item["file"]["url"]
                     item["author"] = "Not Available"
                     item["tags"] = " ".join(
-                        item["tags"]["general"]
-                        + item["tags"]["species"]
-                        + item["tags"]["character"]
-                        + item["tags"]["copyright"]
+                        item["tags"]["general"] +
+                        item["tags"]["species"] +
+                        item["tags"]["character"] +
+                        item["tags"]["copyright"]
                     )
                     item["score"] = item["score"]["total"]
 
-                # Tag each item with the provider
                 item["provider"] = provider
                 assigned_content.append(item)
-
         except Exception as e:
-            # Catch any item-level processing errors
             log.debug(f"Error processing {provider} response: {e}")
 
         return assigned_content
